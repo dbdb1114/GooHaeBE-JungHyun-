@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    username: root
+    password: mysql
+    url: jdbc:mysql://localhost:3306/goohae?&serverTimezone=UTC&autoReconnect=true&allowMultiQueries=true&characterEncoding=UTF-8
+    driver: com.mysql.cj.jdbc.Driver
+
+
+
+mybatis:
+  mapper-locations: classpath:/mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: com.mywork.goohaetest.domain
+
+
+jwt:
+  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHaasdasfaefqwefasfadgvqeqwfasfqegqsfdadfqegwvsdvasefqwefvsadv
