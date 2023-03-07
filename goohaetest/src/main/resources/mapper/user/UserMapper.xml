@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kdt.goohae.mapper.user.UserMapper">
+    <!-- 로그인 및 회원정보 -->
+    <select id="getUserData" resultType="UserVO">
+        select * from user where id = #{id}
+    </select>
+
+    <!-- 회원가입 -->
+    <insert id="join">
+        insert into user(id, password, name, post_number, address, phone_number)
+        values(#{id}, #{password}, #{name}, #{postNumber}, #{address}, #{phoneNumber})
+    </insert>
+
+    <!-- 패스워드 수정 -->
+    <update id="changePassword">
+        update user set password = #{password}
+        where id = #{id}
+    </update>
+
+    <!-- 배송지 수정 -->
+    <update id="changeAddress">
+        update user set post_number = #{postNumber}, address = #{address}
+        where id = #{id}
+    </update>
+
+    <!-- 회원 탈퇴 ( 휴면계정으로 ) -->
+    <update id="disabledUser">
+        update user set status = 'H', join_date = #{joinDate} where id = #{id}
+    </update>
+</mapper>

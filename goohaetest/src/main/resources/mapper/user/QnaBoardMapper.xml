@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kdt.goohae.mapper.user.QnaBoardMapper">
+    <!-- QnA 게시판 등록 -->
+    <insert id="regQnaBoard">
+        insert into qna_board(user_id, title, content, board_password)
+        values(#{userId}, #{title}, #{content}, #{boardPassword})
+    </insert>
+
+    <!-- QnA 댓글 등록 -->
+    <insert id="regQnaComment">
+        insert into qna_comment(board_seq, id, comment)
+        values(#{boardSeq}, #{id}, #{comment})
+    </insert>
+
+
+
+
+    <!-- QnA 전체, 공개글, 비공개글 -->
+    <sql id="check">
+        <choose>
+            <when test="check == 'pub'.toString()">
+                where board_password is null
+            </when>
+
+            <when test="check == 'priv'.toString()">
+                where board_password is not null
+            </when>
+
+            <otherwise>
+
+            </otherwise>
+        </choose>
+    </sql>
+
+    <!-- QnA 게시판 데이터 가져오기 -->
+    <select id="getQnaBoard" resultType="QnaBoardVO">
+        select user_id, title, board_password, reg_date
+        from qna_board
+        <include refid="check" />
+        order by reg_date desc
+    </select>
+
+    <!-- QnA 게시판 전체 데이터 갯수 조회 -->
+    <select id="getQnaTotalData" resultType="int">
+        select count(*)
+        from qna_board
+        <include refid="check" />
+    </select>
+</mapper>

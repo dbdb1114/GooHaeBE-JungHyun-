@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.kdt.goohae.mapper.admin.ProductMapper">
+    <!-- 상품 테이블 등록 -->
+    <insert id="regProduct">
+        insert into product(category_code, manager_id, product_name, price, product_info, product_option, discount)
+        values(#{categoryCode}, #{managerId}, #{productName}, #{price}, #{productInfo}, #{productOption}, #{discount})
+    </insert>
+
+    <!-- 상품 이미지 등록 -->
+    <insert id="regProductImg">
+        <selectKey keyProperty="productCode" resultType="int" order="BEFORE">
+            select product_code from product where product_name = #{productName}
+        </selectKey>
+
+        insert into product_image(product_code, product_option, image_path)
+        values(#{productCode}, #{productOption}, #{imagePath})
+    </insert>
+
+    <!-- 상품 삭제 -->
+    <delete id="deleteProduct">
+        delete from product where product_code = #{productCode} and product_name = #{productName}
+    </delete>
+
+
+
+
+    <!-- 상품 데이터 가져오기 전에 실행할 categoryCode 가져오는 SQL -->
+    <select id="getCategory" resultType="int">
+        select category_code from category where category_name = #{categoryName}
+    </select>
+
+
+    <!-- check 박스 사용 여부 -->
+    <sql id="check">
+        <choose>
+            <when test="check == 'new'.toString()">
+                order by product.upload_date desc
+            </when>
+
+            <when test="check == 'old'.toString()">
+                order by product.upload_date asc
+            </when>
+
+            <when test="check == 'expen'.toString()">
+                order by product.price desc
+            </when>
+
+            <when test="check == 'cheap'.toString()">
+                order by product.price asc
+            </when>
+
+            <otherwise>
+                order by product.upload_date desc
+            </otherwise>
+        </choose>
+    </sql>
+
+    <!-- 카테고리별 상품 데이터를 위한 join query문 ( check 박스 클릭 시에도 사용 ) -->
+    <select id="getProduct" resultType="GetProductDTO">
+        select product.product_code, product.product_name, product.price, product.discount, product_image.image_path
+        from product, product_image
+
+        where product.category_code = #{categoryCode}
+        and product.product_code = product_image.product_code
+        and product_image.image_path like '%-1%'
+
+        <include refid="check" />
+        limit #{startNum}, #{rowsPerPage}
+    </select>
+    
+    <!-- 카테고리별 상품 전체 데이터 갯수 조회 -->
+    <select id="getTotalData" resultType="int">
+        select count(*) from product where category_code = #{categoryCode}
+    </select>
+
+
+
+
+    <!-- 검색을 위한 조건 -->
+    <sql id="search">
+        <bind name="searchValue" value="'%'+keyword+'%'"/>
+        where product.product_name like #{searchValue}
+    </sql>
+
+    <!-- 전체 검색 ( 헤더의 검색바 )를 위한 query문 -->
+    <select id="getSearchProduct" resultType="GetProductDTO">
+        select product.product_code, product.product_name, product.price, product.discount, product_image.image_path
+        from product, product_image
+
+        <include refid="search" />
+        and product.product_code = product_image.product_code
+        and product_image.image_path like '%-1%'
+
+        order by product.upload_date desc
+        limit #{startNum}, #{rowsPerPage}
+    </select>
+    
+    <!-- 전체 검색 ( 헤더의 검색바 )한 데이터의 전체 갯수 조회 -->
+    <select id="getSearchTotalData" resultType="int">
+        select count(*) from product
+        <include refid="search" />
+    </select>
+</mapper>
